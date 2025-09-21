@@ -1,6 +1,7 @@
 import mongoose, { connect } from 'mongoose';
-import { DATABASE_URI, DB_NAME } from './constants';
+import { DATABASE_URI, DB_NAME } from '../constants';
 import { NextResponse } from 'next/server';
+import { ApiError } from '@/utils/NextApiError';
 
 export default async function connectDB() {
   try {
@@ -10,6 +11,6 @@ export default async function connectDB() {
     return instance.connection;
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: 'failed to connect db', status: 500 });
+    return NextResponse.json(new ApiError(500, 'Failed to connect DB'), { status: 500 });
   }
 }
