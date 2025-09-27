@@ -8,7 +8,7 @@ export enum Role {
   Visitor = 'Visitor',
 }
 
-const userSchema = new Schema<IUserDocument, IUserModel, IUserDocument>(
+const userSchema = new Schema<IUserDocument, IUserModel>(
   {
     firstName: {
       type: String,
@@ -108,7 +108,7 @@ const userSchema = new Schema<IUserDocument, IUserModel, IUserDocument>(
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
-);
+);  
 
 // Indexes
 userSchema.index({ email: 1 });
@@ -165,6 +165,7 @@ userSchema.methods.generateRefreshToken = async function () {
   return refreshToken;
 };
 
-const User = model<IUserDocument, IUserModel>('User', userSchema);
+const User = model<IUserDocument, IUserModel>('User', userSchema) ;
+
 
 export default User;

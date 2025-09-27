@@ -37,6 +37,9 @@ export interface IUserBase {
   role?: Role;
 }
 
+
+
+
 /**
  * Document interface that represents an actual Mongoose document instance.
  * Methods are declared here so TypeScript knows about instance methods.
@@ -64,7 +67,6 @@ export interface IUserModel extends Model<IUserDocument, {}, IUserDocument> {
   // if you need static methods, declare them here, e.g.
   // findByUsername?(username: string): Promise<IUserDocument | null>;
 }
-
 /**
  * DTOs / helpers
  *
@@ -72,7 +74,7 @@ export interface IUserModel extends Model<IUserDocument, {}, IUserDocument> {
  * Use this type for API responses.
  */
 export type PublicUser = {
-  id: string; // string form of ObjectId
+  _id: string; // string form of ObjectId
   firstName: string;
   lastName?: string | null;
   username: string;
@@ -102,9 +104,8 @@ export type CreateUserInput = Omit<
 > & {
   // role can be provided optionally on create, otherwise defaults to Customer
   role?: Role;
-  uploads?: Types.ObjectId[] | string[]; // accept strings too
+  uploads?: Types.ObjectId[] | TypeUpload[]; // accept strings too
 };
-
 export type UpdateUserInput = Partial<Omit<IUserBase, 'username' | 'email'>> & {
   // usually you don't want to allow username/email change without special flow
   uploads?: Types.ObjectId[] | string[];

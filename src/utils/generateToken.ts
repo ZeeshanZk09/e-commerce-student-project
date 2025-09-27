@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import { ApiSuccess } from './NextApiSuccess';
 import { ApiError } from './NextApiError';
@@ -6,7 +6,7 @@ import User from '@/lib/models/User';
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from '@/lib/constants';
 import { unknown } from 'zod';
 
-export default async function generateToken(id: ObjectId) {
+export default async function generateToken(id: Types.ObjectId): Promise<string | NextResponse<ApiError> | null> {
   try {
     // if (!id) return NextResponse.json(new ApiSuccess(null, 400, { message: 'User ID is required.' }))
     if (!id)
@@ -30,8 +30,8 @@ export default async function generateToken(id: ObjectId) {
     let accessToken, refreshToken;
 
     try {
-      accessToken = user.generateAccessToken();
-      refreshToken = user.generateRefreshToken();
+      accessToken = await user.generateAccessToken();
+      refreshToken = await user.generateRefreshToken();
     } catch (error) {
       console.log(error);
       return NextResponse.json(
@@ -44,11 +44,21 @@ export default async function generateToken(id: ObjectId) {
       );
     }
 
-    user. = refreshToken;
+    if (!accessToken || !refreshToken) {
+      return NextResponse.json(
+        new ApiError(
+          500,
+          'Failed to generate Tokens.',
+          { message: 'Internal server error.' },
+          true
+        )
+      ); }
+
+    user.refreshToken = refreshToken;
     await user.save();
 
-    return { accessToken, refreshToken };
+    return accessToken;
   } catch (error) {
-
+    return null;
   }
 }
