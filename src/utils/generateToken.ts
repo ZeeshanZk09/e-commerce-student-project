@@ -1,12 +1,20 @@
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
-import { ApiSuccess } from './NextApiSuccess';
 import { ApiError } from './NextApiError';
 import User from '@/lib/models/User';
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from '@/lib/constants';
-import { unknown } from 'zod';
+import { jwtVerify } from 'jose';
 
-export default async function generateToken(id: Types.ObjectId): Promise<string | NextResponse<ApiError> | null> {
+if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
+  throw new Error('Missing ACCESS_TOKEN_SECRET or REFRESH_TOKEN_SECRET environment variables');
+}
+
+const accessToken = new TextEncoder().encode(ACCESS_TOKEN_SECRET);
+const refreshToken = new TextEncoder().encode(REFRESH_TOKEN_SECRET);
+
+export default async function generateToken(
+  id: Types.ObjectId
+): Promise<string | NextResponse<ApiError> | null> {
   try {
     // if (!id) return NextResponse.json(new ApiSuccess(null, 400, { message: 'User ID is required.' }))
     if (!id)
@@ -27,8 +35,8 @@ export default async function generateToken(id: Types.ObjectId): Promise<string 
       );
     }
 
-    let accessToken, refreshToken;
-
+    let accessToken: string, refreshToken: string;
+    // mistake, undefine, error
     try {
       accessToken = await user.generateAccessToken();
       refreshToken = await user.generateRefreshToken();
@@ -46,13 +54,9 @@ export default async function generateToken(id: Types.ObjectId): Promise<string 
 
     if (!accessToken || !refreshToken) {
       return NextResponse.json(
-        new ApiError(
-          500,
-          'Failed to generate Tokens.',
-          { message: 'Internal server error.' },
-          true
-        )
-      ); }
+        new ApiError(500, 'Failed to generate Tokens.', { message: 'Internal server error.' }, true)
+      );
+    }
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -60,5 +64,29 @@ export default async function generateToken(id: Types.ObjectId): Promise<string 
     return accessToken;
   } catch (error) {
     return null;
+  }
+}
+
+// Verify access token
+export async function verifyAccessToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, accessToken);
+    console.debug('Access token verified', { payload });
+    return { payload, valid: true };
+  } catch (error) {
+    console.warn('Access token verification failed', { error: String(error), token });
+    return { error, valid: false };
+  }
+}
+
+// Verify refresh token
+export async function verifyRefreshToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, refreshToken);
+    console.debug('Refresh token verified', { payload });
+    return { payload, valid: true };
+  } catch (error) {
+    console.warn('Refresh token verification failed', { error: String(error), token });
+    return { error, valid: false };
   }
 }

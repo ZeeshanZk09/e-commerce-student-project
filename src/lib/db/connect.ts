@@ -6,8 +6,8 @@ import { ApiError } from '@/utils/NextApiError';
 export default async function connectDB() {
   try {
     if (mongoose.connection.readyState === 1) return mongoose.connection;
-    const instance = await connect(`${DATABASE_URI!}/${DB_NAME}`);
-    console.log(instance.connection.host);
+    const instance = await connect(`${DATABASE_URI}/${DB_NAME}`);
+    console.log('db connected: ', instance.connection.host);
     return instance.connection;
   } catch (error) {
     console.log(error);

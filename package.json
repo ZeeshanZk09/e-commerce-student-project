@@ -10,6 +10,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "jose": "^6.1.0",
     "mongoose": "^8.18.1",

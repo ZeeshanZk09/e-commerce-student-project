@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, models } from 'mongoose';
 import { IUserDocument, IUserModel } from '@/types/userType';
 
 export enum Role {
@@ -27,6 +27,7 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       type: String,
       required: [true, 'Username is required.'],
       unique: [true, 'Username is already exists.'],
+      index: true,
       trim: true,
       lowercase: true,
       minlength: [3, 'Username must be at least 3 characters long.'],
@@ -50,6 +51,7 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       minlength: [3, 'Phone must be at least 3 characters long.'],
       maxlength: [20, 'Phone must not exceed 20 characters.'],
       match: [/^\+?[0-9]{10,15}$/, 'Phone number must be valid.'],
+      index: true,
     },
     phoneVerified: {
       type: Boolean,
@@ -63,6 +65,7 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       type: String,
       required: [true, 'Email is required.'],
       unique: [true, 'Email is already exists.'],
+      index: true,
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Email must be valid.'],
@@ -89,6 +92,7 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
       facebook: { type: String, trim: true },
       instagram: { type: String, trim: true },
       google: { type: String, trim: true },
+      default: { type: String, trim: true },
     },
     uploads: [
       {
@@ -108,12 +112,7 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
-);  
-
-// Indexes
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-userSchema.index({ phone: 1 });
+);
 
 // Pre-save hook for hashing
 userSchema.pre('save', async function (next) {
@@ -165,7 +164,6 @@ userSchema.methods.generateRefreshToken = async function () {
   return refreshToken;
 };
 
-const User = model<IUserDocument, IUserModel>('User', userSchema) ;
-
+const User = models.User || model('User', userSchema);
 
 export default User;

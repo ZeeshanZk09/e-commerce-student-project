@@ -25,20 +25,17 @@ export interface IUserBase {
   lastName?: string | null;
   username: string;
   phone: string;
-  phoneVerified?: boolean;
+  phoneVerified: boolean;
   phoneVerificationToken?: string | null;
   email: string;
-  emailVerified?: boolean;
+  emailVerified: boolean;
   emailVerificationToken?: string | null;
   password: string;
   refreshToken: string;
-  provider: Provider;
-  uploads?: Types.ObjectId[] | TypeUpload[]; // allow both populated and unpopulated forms
+  provider?: Provider | null;
+  uploads: Types.ObjectId[] | TypeUpload[] | null; // allow both populated and unpopulated forms
   role?: Role;
 }
-
-
-
 
 /**
  * Document interface that represents an actual Mongoose document instance.
@@ -74,7 +71,7 @@ export interface IUserModel extends Model<IUserDocument, {}, IUserDocument> {
  * Use this type for API responses.
  */
 export type PublicUser = {
-  _id: string; // string form of ObjectId
+  _id: Types.ObjectId; // string form of ObjectId
   firstName: string;
   lastName?: string | null;
   username: string;
@@ -82,9 +79,9 @@ export type PublicUser = {
   phoneVerified: boolean;
   email: string;
   emailVerified: boolean;
-  provider?: Provider;
-  uploads?: string[]; // array of ids (string) or public URLs if you populate/transform
-  role: Role;
+  provider?: Provider | null;
+  uploads: Types.ObjectId[] | TypeUpload[] | null; // array of ids (string) or public URLs if you populate/transform
+  role?: Role;
   createdAt: Date;
   updatedAt?: Date;
   fullName?: string;
@@ -104,7 +101,7 @@ export type CreateUserInput = Omit<
 > & {
   // role can be provided optionally on create, otherwise defaults to Customer
   role?: Role;
-  uploads?: Types.ObjectId[] | TypeUpload[]; // accept strings too
+  uploads?: Types.ObjectId[] | TypeUpload[] | null; // accept strings too
 };
 export type UpdateUserInput = Partial<Omit<IUserBase, 'username' | 'email'>> & {
   // usually you don't want to allow username/email change without special flow

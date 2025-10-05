@@ -1,20 +1,15 @@
-'use client';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-export default async function Home() {
-  const [data, setData] = useState<any>(null);
-  const res = await fetch('/api/register');
-  const response = res.json();
-  setData(response);
-  // useEffect(() => {
-  //   async function fetchData() {
-
-  //   }
-  // }, [])
+export default function Home() {
   return (
     <div>
-      <span>{data?.username}</span>
+      <span>
+        welcome and go to this page to register
+        <Link href={'/register'} className='text-blue-600 underline'>
+          register
+        </Link>
+      </span>
     </div>
   );
 }
