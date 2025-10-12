@@ -33,7 +33,25 @@ export interface IUserBase {
   password: string;
   refreshToken: string;
   provider?: Provider | null;
-  uploads: Types.ObjectId[] | TypeUpload[] | null; // allow both populated and unpopulated forms
+  uploads: Types.ObjectId[] | TypeUpload[] | null;
+  profilePic?: {
+    public_id: string;
+    secure_url: string;
+    fileName: string;
+    fileBits: string;
+    type: string;
+    duration: number;
+    format: string;
+  } | null;
+  coverPic?: {
+    public_id: string;
+    secure_url: string;
+    fileName: string;
+    fileBits: string;
+    type: string;
+    duration: number;
+    format: string;
+  } | null;
   role?: Role;
 }
 
@@ -70,22 +88,10 @@ export interface IUserModel extends Model<IUserDocument, {}, IUserDocument> {
  * PublicUser: the object you can safely return to clients (no tokens/passwords).
  * Use this type for API responses.
  */
-export type PublicUser = {
-  _id: Types.ObjectId; // string form of ObjectId
-  firstName: string;
-  lastName?: string | null;
-  username: string;
-  phone: string;
-  phoneVerified: boolean;
-  email: string;
-  emailVerified: boolean;
-  provider?: Provider | null;
-  uploads: Types.ObjectId[] | TypeUpload[] | null; // array of ids (string) or public URLs if you populate/transform
-  role?: Role;
-  createdAt: Date;
-  updatedAt?: Date;
-  fullName?: string;
-};
+export type PublicUser = Omit<
+  IUserBase,
+  'password' | 'refreshToken' | 'emailVerificationToken' | 'phoneVerificationToken'
+>;
 
 /**
  * Input types

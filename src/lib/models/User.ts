@@ -101,6 +101,66 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
         ref: 'Upload',
       },
     ],
+    profilePic: {
+      public_id: {
+        type: String,
+        required: [true, 'Public ID is required.'],
+      },
+      secure_url: {
+        type: String,
+        required: [true, 'Secure URL is required.'],
+      },
+      fileName: {
+        type: String,
+        required: [true, 'File name is required.'],
+      },
+      fileBits: {
+        type: String,
+        required: [true, 'File bits is required.'],
+      },
+      type: {
+        type: String,
+        required: [true, 'Type is required.'],
+      },
+      duration: {
+        type: Number,
+        required: [true, 'Duration is required.'],
+      },
+      format: {
+        type: String,
+        required: [true, 'Format is required.'],
+      },
+    },
+    coverPic: {
+      public_id: {
+        type: String,
+        required: [true, 'Public ID is required.'],
+      },
+      secure_url: {
+        type: String,
+        required: [true, 'Secure URL is required.'],
+      },
+      fileName: {
+        type: String,
+        required: [true, 'File name is required.'],
+      },
+      fileBits: {
+        type: String,
+        required: [true, 'File bits is required.'],
+      },
+      type: {
+        type: String,
+        required: [true, 'Type is required.'],
+      },
+      duration: {
+        type: Number,
+        required: [true, 'Duration is required.'],
+      },
+      format: {
+        type: String,
+        required: [true, 'Format is required.'],
+      },
+    },
     role: {
       type: String, // 👈 force cast
       enum: Object.values(Role),

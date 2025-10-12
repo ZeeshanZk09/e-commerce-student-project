@@ -1,6 +1,5 @@
 import { TypeUpload } from '@/types/uploadType';
 import { model, Schema } from 'mongoose';
-import abc from './User';
 
 const uploadSchema = new Schema<TypeUpload>({
   public_id: {
