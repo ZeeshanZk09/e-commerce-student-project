@@ -16,7 +16,7 @@ const refreshToken = new TextEncoder().encode(REFRESH_TOKEN_SECRET);
 
 export default async function generateToken(
   id: Types.ObjectId
-): Promise<string | NextResponse<ApiError> | null> {
+): Promise<{ accessToken: string; refreshToken: string } | NextResponse<ApiError> | null> {
   try {
     // if (!id) return NextResponse.json(new ApiSuccess(null, 400, { message: 'User ID is required.' }))
     if (!id)
@@ -64,7 +64,7 @@ export default async function generateToken(
     user.refreshToken = refreshToken;
     await user.save();
 
-    return accessToken;
+    return { accessToken, refreshToken };
   } catch (error) {
     return null;
   }

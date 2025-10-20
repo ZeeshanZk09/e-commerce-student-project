@@ -104,61 +104,47 @@ const userSchema = new Schema<IUserDocument, IUserModel>(
     profilePic: {
       public_id: {
         type: String,
-        required: [true, 'Public ID is required.'],
       },
       secure_url: {
         type: String,
-        required: [true, 'Secure URL is required.'],
       },
       fileName: {
         type: String,
-        required: [true, 'File name is required.'],
       },
       fileBits: {
         type: String,
-        required: [true, 'File bits is required.'],
       },
       type: {
         type: String,
-        required: [true, 'Type is required.'],
       },
       duration: {
         type: Number,
-        required: [true, 'Duration is required.'],
       },
       format: {
         type: String,
-        required: [true, 'Format is required.'],
       },
     },
     coverPic: {
       public_id: {
         type: String,
-        required: [true, 'Public ID is required.'],
       },
       secure_url: {
         type: String,
-        required: [true, 'Secure URL is required.'],
       },
       fileName: {
         type: String,
-        required: [true, 'File name is required.'],
       },
       fileBits: {
         type: String,
-        required: [true, 'File bits is required.'],
       },
       type: {
         type: String,
-        required: [true, 'Type is required.'],
       },
       duration: {
         type: Number,
-        required: [true, 'Duration is required.'],
       },
       format: {
         type: String,
-        required: [true, 'Format is required.'],
       },
     },
     role: {
@@ -200,32 +186,38 @@ userSchema.methods.generateAccessToken = async function (user: PublicUser) {
   const jose = await import('jose');
   console.log(user);
   const accessToken = await new jose.SignJWT({
-    username: user.username,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
+    id: this._id,
+    username: this.username,
+    email: this.email,
+    phone: this.phone,
+    role: this.role, // authorization
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('15m')
     .sign(new TextEncoder().encode(ACCESS_TOKEN_SECRET));
   console.log(accessToken);
-  // .sign(jose.base64url.decode(process.env.ACCESS_TOKEN_SECRET!));
+  if (typeof accessToken !== 'string') {
+    throw new Error('Failed to create access token');
+  }
   return accessToken;
 };
 userSchema.methods.generateRefreshToken = async function (user: PublicUser) {
   const jose = await import('jose');
   console.log(user);
   const refreshToken = await new jose.SignJWT({
-    username: user.username,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
+    id: this._id,
+    username: this.username,
+    email: this.email,
+    phone: this.phone,
+    role: this.role, // authorization
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('7d')
     .sign(new TextEncoder().encode(REFRESH_TOKEN_SECRET));
   console.log(refreshToken);
-  // .sign(jose.base64url.decode(process.env.REFRESH_TOKEN_SECRET!));
+  if (typeof refreshToken !== 'string') {
+    throw new Error('Failed to create access token');
+  }
   return refreshToken;
 };
 

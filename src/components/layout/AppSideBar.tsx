@@ -13,15 +13,33 @@ export default function AppSidebar({
   setIsOpen,
 }: {
   isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
+  setIsOpen: (open?: boolean) => void;
 }) {
-  const { user } = useGetUserSession(); // ✅ destructure properly (no setUser here)
-  const [localUser, setLocalUser] = useState<PublicUser | null>(null);
+  // useGetUserSession might return: undefined (loading), null (no session), or user object
+  const { user } = useGetUserSession();
   const router = useRouter();
-  // ✅ Update local state only when user changes
+
+  // mounted guard prevents hydration mismatch / flicker
+  const [mounted, setMounted] = useState(false);
+
+  // localUser can be PublicUser | null (null means explicitly logged out)
+  const [localUser, setLocalUser] = useState<PublicUser | null | undefined>(user ?? undefined);
+
   useEffect(() => {
-    if (user) setLocalUser(user);
+    setMounted(true);
+  }, []);
+
+  // keep localUser in sync with session changes
+  useEffect(() => {
+    // Explicitly use null when no user; undefined means "still loading/unknown"
+    setLocalUser(user ?? null);
   }, [user]);
+
+  // Debugging logs (remove in production)
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('useGetUserSession user:', user, 'localUser:', localUser, 'mounted:', mounted);
+  }, [user, localUser, mounted]);
 
   const navigationLinks = [
     { id: 0, label: 'Home', link: '/' },
@@ -53,7 +71,7 @@ export default function AppSidebar({
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 120, damping: 20 }}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            className='w-72 sm:w-80 bg-white/90 dark:bg-[#111] shadow-2xl rounded-l-2xl p-6 flex flex-col justify-between'
+            className='overflow-visible w-72 sm:w-80 bg-white/90 dark:bg-[#111] shadow-2xl rounded-l-2xl p-6 flex flex-col justify-between'
           >
             {/* Header */}
             <div className='flex justify-between items-center mb-6'>
@@ -61,6 +79,7 @@ export default function AppSidebar({
               <button
                 onClick={() => setIsOpen(false)}
                 className='p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full transition'
+                aria-label='Close sidebar'
               >
                 <X size={20} />
               </button>
@@ -104,21 +123,51 @@ export default function AppSidebar({
                 ))}
               </ul>
             </nav>
+            <>
+              <li>
+                <Link
+                  href='/auth/login'
+                  onClick={() => setIsOpen(false)}
+                  className='block text-sm p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition'
+                >
+                  Login
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href='/auth/register'
+                  onClick={() => setIsOpen(false)}
+                  className='block text-sm p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition'
+                >
+                  Register
+                </Link>
+              </li>
+            </>
 
             {/* Auth Section */}
             <div className='border-t border-gray-200 dark:border-gray-800 pt-4 mt-6'>
               <ul className='flex flex-col gap-3'>
-                {localUser ? (
+                {!mounted || user === undefined ? (
+                  <li className='text-sm p-2'> </li>
+                ) : localUser ? (
                   <li className='flex items-center gap-3'>
-                    <Image
-                      onClick={() => router.push('/profile')}
-                      src={localUser.profilePic?.secure_url || '/default-profile.png'}
-                      alt='Profile Picture'
-                      width={40}
-                      height={40}
-                      className='w-10 h-10 rounded-full p-2 border object-cover'
-                    />
-                    <span className='text-sm font-medium'>{localUser.username}</span>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        router.push('/profile');
+                      }}
+                      className='flex items-center gap-3'
+                      aria-label='Go to profile'
+                    >
+                      <Image
+                        src={localUser.profilePic?.secure_url || '/default-profile.png'}
+                        alt='Profile Picture'
+                        width={40}
+                        height={40}
+                        className='w-10 h-10 rounded-full p-2 border object-cover'
+                      />
+                      <span className='text-sm font-medium'>{localUser.username}</span>
+                    </button>
                   </li>
                 ) : (
                   <>

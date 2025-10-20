@@ -17,21 +17,25 @@ export default function Header() {
 
   return (
     <header className='p-4 flex justify-between '>
-      <h2>E - com</h2>
-      <nav className='hidden md:flex'>
-        <ul>
+      <h2 className='w-full'>E - com</h2>
+      <nav className='hidden md:block w-full'>
+        <ul className='w-full flex justify-between'>
           {navLinks.map((link) => (
             <li key={link.name}>
               <Link href={link.href}>{link.name}</Link>
             </li>
           ))}
         </ul>
+        <div className='flex space-x-4 justify-end'>
+          <Link href={'/auth/login'}>Login</Link>
+          <Link href={'/auth/register'}>Register</Link>
+        </div>
       </nav>
 
       <button className='block md:hidden' onClick={() => setOpen(true)}>
         {<Menu />}
       </button>
-      {open && <AppSideBar isOpen={open} setIsOpen={setOpen} />}
+      {open && <AppSideBar isOpen={open} setIsOpen={setOpen as any} />}
     </header>
   );
 }

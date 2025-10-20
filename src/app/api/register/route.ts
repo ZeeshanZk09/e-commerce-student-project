@@ -38,7 +38,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       { status: 201 }
     );
 
-    const token = (await generateToken(createdUser._id)) as string;
+    const { accessToken: token, refreshToken } = (await generateToken(createdUser._id)) as {
+      accessToken: string;
+      refreshToken: string;
+    };
 
     if (typeof token !== 'string') {
       console.log(token);
@@ -51,7 +54,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     //   sameSite: 'strict',
     // });
 
-    response.headers.set('x-user-id', safeUser._id.toString());
+    response.headers.set('x-user-id', safeUser?._id.toString());
 
     // const cookieStore = await cookies();
 
@@ -61,6 +64,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       sameSite: 'strict',
       path: '/',
     });
+
+    response.cookies.set('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    console.log(response);
 
     return response;
   } catch (error) {

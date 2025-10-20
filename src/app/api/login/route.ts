@@ -20,9 +20,9 @@ export async function POST(req: NextRequest) {
     await connectDB();
     const user: PublicUser | null = await User.findOne({
       $or: [
-        { email: data.email.trim().toLowerCase() },
-        { username: data.username.trim().toLowerCase() },
-        { phone: data.phone.trim().toLowerCase() },
+        { email: data?.email?.trim()?.toLowerCase() },
+        { username: data?.username?.trim()?.toLowerCase() },
+        { phone: data?.phone?.trim()?.toLowerCase() },
       ],
     });
 
@@ -35,7 +35,10 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    const token = (await generateToken(user._id)) as string;
+    const { accessToken: token, refreshToken } = (await generateToken(user._id)) as {
+      accessToken: string;
+      refreshToken: string;
+    };
 
     if (typeof token !== 'string') {
       console.log(token);
@@ -45,6 +48,13 @@ export async function POST(req: NextRequest) {
     response.headers.set('x-user-id', user._id.toString());
 
     response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    response.cookies.set('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

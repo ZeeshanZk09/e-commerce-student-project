@@ -89,7 +89,7 @@ export interface IUserModel extends Model<IUserDocument, {}, IUserDocument> {
  * Use this type for API responses.
  */
 export type PublicUser = Omit<
-  IUserBase,
+  IUserDocument,
   'password' | 'refreshToken' | 'emailVerificationToken' | 'phoneVerificationToken'
 >;
 
@@ -97,7 +97,9 @@ export type PublicUser = Omit<
  * Input types
  */
 export type CreateUserInput = Omit<
-  IUserBase,
+  IUserDocument,
+  | 'coverPic'
+  | 'profilePic'
   | 'role'
   | 'refreshToken'
   | 'phoneVerified'
